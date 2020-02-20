@@ -1,0 +1,8 @@
+# Note that replay.py itself uses only Python builtins.
+# These requirements are needed to run the example.
+zmq
+bluesky
+databroker >=1.0.0b6
+ophyd
+suitcase-msgpack
+area_detector_handlers

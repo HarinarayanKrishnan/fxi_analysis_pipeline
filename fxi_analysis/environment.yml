@@ -1,0 +1,25 @@
+name: base 
+channels:
+  - conda-forge
+dependencies:
+  - python = 3.7
+  - pip = *
+  - tomopy = *
+  - numpy = *
+  - h5py = *
+  - scipy = *
+  - scikit-image = *
+  - tifffile = *
+  - pandas = *
+  - psutil = *
+  - scikit-learn = *
+  - opencv = *
+  - mpi4py = *
+  - pip:
+     - git+https://github.com/tomography/mpiarray.git
+     #- icxray
+     - git+https://github.com/data-exchange/dxchange.git
+     #- git+https://bitbucket.di2e.net/scm/dmears/ltt.git
+     - area-detector-handlers # to read databroker data...
+
+
