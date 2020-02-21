@@ -54,11 +54,10 @@ class FxiStandardFlyScan(DocumentRouter):
     Pipeline. See fxi_analysis Dockerfile.
     """
 
-    def __init__(self, catalog, run, zmq_socket, root_map):
+    def __init__(self, catalog, run, zmq_socket):
         self.catalog = catalog
         self.run = run
         self.socket = zmq_socket
-        self.root_map = root_map
 
         self.stream_count = defaultdict(lambda: 0)
 
@@ -170,8 +169,7 @@ class FxiStandardFlyScan(DocumentRouter):
                 "Andor_hdf5_full_file_name"
             ]
 
-            rml = list(self.root_map.items())
-            file_name = file_name.replace(rml[0][0], rml[0][1])
+            # file_name = file_name.replace(rml[0][0], rml[0][1])
             self.read_timestamps(file_name)
 
             # print(self._dataset1)
