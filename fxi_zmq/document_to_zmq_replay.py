@@ -140,7 +140,7 @@ class FxiStandardFlyScan(DocumentRouter):
 
         try:
             self.x_eng = doc["XEng"]
-        except:
+        except KeyError:
             self.x_eng = doc["x_ray_energy"]
 
         self.chunk_size = doc["chunk_size"]
