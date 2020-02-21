@@ -31,6 +31,7 @@ class readable_dir(argparse.Action):
 """
 Some Test data
 """
+# python document_to_zmq_replay.py -o 5010 msgpack -m /home/hari/data/hari/Tomography/NSLS-II-FXI-18/export-4XXXX/ -p Andor
 # data_dir = "/home/hari/data/hari/Tomography/NSLS-II-FXI-18/export-1XXXX"
 # data_dir = "/home/hari/data/hari/Tomography/NSLS-II-FXI-18/export-4XXXX"
 # data_dir = "/home/hari/data/hari/Tomography/NSLS-II-FXI-18/export-9XXX"
@@ -78,6 +79,8 @@ class FxiStandardFlyScan(DocumentRouter):
         self._dataset2 = None
         self.data_to_timestamp_map = {}
 
+        self._fpp = 20
+
     def read_timestamps(self, filename):
         import h5py
 
@@ -88,7 +91,6 @@ class FxiStandardFlyScan(DocumentRouter):
         self._file = filename
         self._dataset1 = None
         self._dataset2 = None
-        self._fpp = 1
 
         # Don't read out the dataset until it is requested for the first time.
         with h5py.File(filename, "r") as _file:
@@ -96,13 +98,11 @@ class FxiStandardFlyScan(DocumentRouter):
             self._dataset2 = np.array(_file[_key[1]])
 
     def return_timestamp(self, point_number):
-        self._fpp = 20
         # Don't read out the dataset until it is requested for the first time.
         start, stop = point_number * self._fpp, (point_number + 1) * self._fpp
         rtn = self._dataset1[start:stop].squeeze()
         rtn = rtn + (self._dataset2[start:stop].squeeze() * 1e-9)
         return rtn
-
 
     def reset_data(self):
         """
@@ -132,8 +132,6 @@ class FxiStandardFlyScan(DocumentRouter):
         self._image_timestamps= []
 
     def start(self, doc):
-        print(doc)
-
         self.scan_id = doc["scan_id"]
 
         try:
@@ -151,7 +149,7 @@ class FxiStandardFlyScan(DocumentRouter):
                         }
                      }
 
-        print("sending params")
+        print("sending params", parameters, doc)
         self.socket.send_pyobj(parameters)
 
     def datum_page(self, doc):
@@ -171,9 +169,9 @@ class FxiStandardFlyScan(DocumentRouter):
             file_name = file_name.replace(rml[0][0], rml[0][1])
             self.read_timestamps(file_name)
 
-            print(self._dataset1)
-            print(self._dataset2)
-            print(file_name)
+            # print(self._dataset1)
+            # print(self._dataset2)
+            # print(file_name)
 
         elif doc['name'] == "zps_pi_r_monitor":
             self.descriptor_uids['zps_pi_r_monitor'] = doc['uid']
@@ -188,15 +186,16 @@ class FxiStandardFlyScan(DocumentRouter):
             from last iteration needs to pushed now.
             """
 
-            print(doc.keys(), doc["uid"], doc["time"], doc["timestamps"]["Andor_image"], doc["descriptor"], doc["data"].keys(), doc['filled'])
-            ts = self.return_timestamp(self.data_to_timestamp_map[doc['filled']["Andor_image"]])
-            print(ts)
+            # print(doc.keys(), doc["uid"], doc["time"], doc["timestamps"]["Andor_image"], doc["descriptor"], doc["data"].keys(), doc['filled'])
+            ts_array = self.return_timestamp(self.data_to_timestamp_map[doc['filled']["Andor_image"]])
+            print(ts_array)
 
             if self.white_avg is not None:
                 # print("Last Data:", self.white_avg.shape)
                 self.socket.send_pyobj( { "tomo_index" : self.counter, "tomo" : self.white_avg } )
                 self._image_timestamps.append(self.white_ts)
                 self.white_avg = None
+                self.white_ts = None
                 self.counter = self.counter + 1
 
             if self.stream_count[doc['descriptor']] == 1:
@@ -214,11 +213,11 @@ class FxiStandardFlyScan(DocumentRouter):
                 self.socket.send_pyobj( { "tomo_index" : self.counter, "tomo" : image } )
                 self.counter = self.counter + 1
 
-            #for ts in doc['data']['Andor_timestamp'][start_from:-1]:
-            #    self._image_timestamps.append(ts)
+            for ts in ts_array[start_from:-1]:
+                self._image_timestamps.append(ts)
 
             self.white_avg = doc['data']['Andor_image'][-1]
-             # self.white_ts = doc['data']['Andor_timestamp'][-1]
+            self.white_ts = ts_array[-1]
         elif doc['descriptor'] == self.descriptor_uids.get('zps_pi_r_monitor'):
             # print(doc["data"], self._buffered_thetas)
             self._buffered_thetas.append(doc['data']['zps_pi_r'])
@@ -230,7 +229,6 @@ class FxiStandardFlyScan(DocumentRouter):
             print("Ending:", self.white_avg.shape)
             self.socket.send_pyobj( { "white_avg" : self.white_avg } )
 
-            """
             EPICS_TO_UNIX_OFFSET = 631152000  # 20 years in seconds
         
             thetas = np.interp([item + EPICS_TO_UNIX_OFFSET for item in self._image_timestamps],
@@ -239,7 +237,6 @@ class FxiStandardFlyScan(DocumentRouter):
 
             self.socket.send_pyobj( { "thetas" : thetas } )
             print("SENDING", thetas)
-            """
 
 class FxiDocumentStreamToZMQ:
     """
@@ -300,7 +297,7 @@ class FxiDocumentStreamToZMQ:
         print("Mapping", data_dir, root_map)
 
         self.catalog = BlueskyMsgpackCatalog(f'{data_dir}/*.msgpack', root_map=root_map)
-        print(list(self.catalog))
+        # print(list(self.catalog))
         self.run = self.catalog[-1]
 
         await self.replay(self.run.canonical(fill='yes'), root_map)
