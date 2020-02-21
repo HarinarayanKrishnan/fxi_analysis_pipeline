@@ -161,13 +161,7 @@ class FxiStandardFlyScan(DocumentRouter):
             self.data_to_timestamp_map[datum_id] = point_number
 
     def descriptor(self, doc):
-        if doc["name"] == "baseline":
-            self.descriptor_uids["baseline"] = doc["uid"]
-        elif doc["name"] == "primary":
-            self.descriptor_uids["primary"] = doc["uid"]
-
-        elif doc["name"] == "zps_pi_r_monitor":
-            self.descriptor_uids["zps_pi_r_monitor"] = doc["uid"]
+        self.descriptor_uids[doc['name']] = doc["uid"]
 
     def event(self, doc):
         self.stream_count[doc["descriptor"]] += 1
