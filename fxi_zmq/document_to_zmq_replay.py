@@ -78,7 +78,6 @@ class FxiStandardFlyScan(DocumentRouter):
         self._image_timestamps = []
 
         self.counter = 0
-        self._file = None
         self._dataset1 = None
         self._dataset2 = None
         self.data_to_timestamp_map = {}
@@ -92,7 +91,6 @@ class FxiStandardFlyScan(DocumentRouter):
             "/entry/instrument/NDAttributes/NDArrayEpicsTSSec",
             "/entry/instrument/NDAttributes/NDArrayEpicsTSnSec",
         ]
-        self._file = filename
         self._dataset1 = None
         self._dataset2 = None
 
@@ -113,7 +111,6 @@ class FxiStandardFlyScan(DocumentRouter):
         Reset the data to enable more than one use
         """
         self.counter = 0
-        self._file = None
         self._dataset1 = None
         self._dataset2 = None
         self.data_to_timestamp_map = {}
