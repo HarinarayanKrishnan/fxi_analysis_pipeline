@@ -165,16 +165,6 @@ class FxiStandardFlyScan(DocumentRouter):
             self.descriptor_uids["baseline"] = doc["uid"]
         elif doc["name"] == "primary":
             self.descriptor_uids["primary"] = doc["uid"]
-            file_name = doc["configuration"]["Andor"]["data"][
-                "Andor_hdf5_full_file_name"
-            ]
-
-            # file_name = file_name.replace(rml[0][0], rml[0][1])
-            self.read_timestamps(file_name)
-
-            # print(self._dataset1)
-            # print(self._dataset2)
-            # print(file_name)
 
         elif doc["name"] == "zps_pi_r_monitor":
             self.descriptor_uids["zps_pi_r_monitor"] = doc["uid"]
