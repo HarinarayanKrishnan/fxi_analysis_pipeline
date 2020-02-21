@@ -161,6 +161,7 @@ class FxiStandardFlyScan(DocumentRouter):
             self.data_to_timestamp_map[datum_id] = point_number
 
     def descriptor(self, doc):
+        # technically there can be more than one descriptor per stream so this is not safe
         self.descriptor_uids[doc['name']] = doc["uid"]
 
     def event(self, doc):
