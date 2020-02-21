@@ -4,7 +4,6 @@ import numpy as np
 import collections
 import time
 import argparse
-import intake
 from collections import defaultdict
 from event_model import DocumentRouter
 from bluesky.callbacks import LiveTable as LiveTable_
@@ -12,11 +11,6 @@ from databroker._drivers.msgpack import BlueskyMsgpackCatalog
 
 import asyncio
 import zmq.asyncio
-
-import copy
-import uuid
-
-import event_model
 
 
 class readable_dir(argparse.Action):
