@@ -4,6 +4,7 @@ import numpy as np
 import collections
 import time
 import argparse
+import warnings
 from collections import defaultdict
 from event_model import DocumentRouter
 from bluesky.callbacks import LiveTable as LiveTable_
@@ -107,6 +108,7 @@ class FxiStandardFlyScan(DocumentRouter):
         """
         Reset the data to enable more than one use
         """
+        warnings.warn("Better to wrap this in a RunRouter", stacklevel=2)
         self.counter = 0
         self._dataset1 = None
         self._dataset2 = None
