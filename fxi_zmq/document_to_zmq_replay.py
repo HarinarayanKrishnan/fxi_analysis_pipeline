@@ -68,7 +68,7 @@ class FxiStandardFlyScan(DocumentRouter):
         self.data = []
         self.white_avg = None
         self.white_ts = None
-        self.descriptor_uids = {}
+        self.descriptors_by_uid = {}
         self.image_angle = None
 
         self._buffered_thetas = []
@@ -102,7 +102,6 @@ class FxiStandardFlyScan(DocumentRouter):
         self.data = []
         self.white_avg = None
         self.white_ts = None
-        self.descriptor_uids = {}
         self.image_angle = None
 
         self._buffered_thetas = []
@@ -139,14 +138,12 @@ class FxiStandardFlyScan(DocumentRouter):
             self.data_to_timestamp_map[datum_id] = point_number
 
     def descriptor(self, doc):
-        # technically there can be more than one descriptor per stream so this is not safe
-        self.descriptor_uids[doc['name']] = doc["uid"]
+        self.descriptors_by_uid[doc['uid'] = doc
 
     def event(self, doc):
         self.stream_count[doc["descriptor"]] += 1
-
-        if doc["descriptor"] == self.descriptor_uids.get("primary"):
-
+        desc = self.descriptors_by_uid[doc['descriptor']]
+        if desc['name'] == 'primary':
             """
             if there is another descriptor then it means that saved last frame
             from last iteration needs to pushed now.
@@ -173,7 +170,6 @@ class FxiStandardFlyScan(DocumentRouter):
             else:
                 start_from = 0
 
-            # print(doc["data"].keys(), doc["descriptor"], self.descriptor_uids.values())
             print(len(doc["data"]["Andor_image"][start_from:-1]))
             for image in doc["data"]["Andor_image"][start_from:-1]:
                 # print("Data:", image.shape)
@@ -185,7 +181,7 @@ class FxiStandardFlyScan(DocumentRouter):
 
             self.white_avg = doc["data"]["Andor_image"][-1]
             self.white_ts = ts_array[-1]
-        elif doc["descriptor"] == self.descriptor_uids.get("zps_pi_r_monitor"):
+        elif desc['name'] == "zps_pi_r_monitor":
             # print(doc["data"], self._buffered_thetas)
             self._buffered_thetas.append(doc["data"]["zps_pi_r"])
             self._theta_timestamps.append(doc["timestamps"]["zps_pi_r"])
