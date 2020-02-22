@@ -297,9 +297,6 @@ class FxiDocumentStreamToZMQ:
 
         await self.replay(self.run.canonical(fill="yes"), root_map)
 
-    async def read_from_mongodb(self, mongodb):
-        pass
-
     async def replay(self, gen, root_map):
         """
         Emit documents to a callback with realistic time spacing.
