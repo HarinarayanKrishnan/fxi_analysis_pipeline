@@ -54,10 +54,8 @@ class FxiStandardFlyScan(DocumentRouter):
     Pipeline. See fxi_analysis Dockerfile.
     """
 
-    def __init__(self, catalog, run, zmq_socket):
-        self.catalog = catalog
-        self.run = run
-        self.socket = zmq_socket
+    def __init__(self, publish_socket):
+        self.socket = publish_socket
 
         self.stream_count = defaultdict(lambda: 0)
 
