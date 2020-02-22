@@ -82,28 +82,6 @@ class FxiStandardFlyScan(DocumentRouter):
 
         self._fpp = 20
 
-    def read_timestamps(self, filename):
-        import h5py
-
-        _key = [
-            "/entry/instrument/NDAttributes/NDArrayEpicsTSSec",
-            "/entry/instrument/NDAttributes/NDArrayEpicsTSnSec",
-        ]
-        self._dataset1 = None
-        self._dataset2 = None
-
-        # Don't read out the dataset until it is requested for the first time.
-        with h5py.File(filename, "r") as _file:
-            self._dataset1 = np.array(_file[_key[0]])
-            self._dataset2 = np.array(_file[_key[1]])
-
-    def return_timestamp(self, point_number):
-        # Don't read out the dataset until it is requested for the first time.
-        start, stop = point_number * self._fpp, (point_number + 1) * self._fpp
-        rtn = self._dataset1[start:stop].squeeze()
-        rtn = rtn + (self._dataset2[start:stop].squeeze() * 1e-9)
-        return rtn
-
     def reset_data(self):
         """
         Reset the data to enable more than one use
@@ -173,11 +151,8 @@ class FxiStandardFlyScan(DocumentRouter):
             if there is another descriptor then it means that saved last frame
             from last iteration needs to pushed now.
             """
-
-            # print(doc.keys(), doc["uid"], doc["time"], doc["timestamps"]["Andor_image"], doc["descriptor"], doc["data"].keys(), doc['filled'])
-            ts_array = self.return_timestamp(
-                self.data_to_timestamp_map[doc["filled"]["Andor_image"]]
-            )
+            # TODO, handle ns related issues?
+            ts_array = doc['data']['Andor_timestamp']
             print(ts_array)
 
             if self.white_avg is not None:
