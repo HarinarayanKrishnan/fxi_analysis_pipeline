@@ -162,10 +162,12 @@ class FxiStandardFlyScan(DocumentRouter):
                 self.white_ts = None
                 self.counter = self.counter + 1
 
-            if self.stream_count[doc["descriptor"]] == 1:
+            # TODO put dark / light images in their own stremas
+            if doc['seq_num'] == 1:
                 dark_avg = np.mean(doc["data"]["Andor_image"][0], axis=0, keepdims=True)
                 # print("Dark:", dark_avg.shape)
                 self.socket.send_pyobj({"dark_avg": dark_avg})
+                # TODO: wat?!
                 start_from = 1
             else:
                 start_from = 0
